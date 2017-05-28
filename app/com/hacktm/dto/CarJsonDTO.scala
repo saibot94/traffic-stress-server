@@ -1,7 +1,7 @@
 package com.hacktm.dto
 
 import play.api.libs.json._
-import reactivemongo.bson.{BSONDocument, BSONDocumentWriter}
+import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter}
 
 /**
   * Created by darkg on 27-May-17.
@@ -29,7 +29,7 @@ object CarJsonDTO {
   implicit val writesCarJson: Writes[CarJsonDTO] = Json.writes[CarJsonDTO]
 
 
-  implicit object PersonWriter extends BSONDocumentWriter[CarJsonDTO] {
+  implicit object CarJsonWriter extends BSONDocumentWriter[CarJsonDTO] {
     def write(carData: CarJsonDTO): BSONDocument =
       BSONDocument(
         "pedal" -> carData.pedal,
@@ -48,5 +48,15 @@ object CarJsonDTO {
         "trafficXSpeed" -> carData.trafficXSpeed
       )
   }
+
+  case class HistoricalDataDTO(speed: Double, rpm: Double)
+
+  object HistoricalDataDTO {
+    implicit val readsHistoricalJson: Reads[HistoricalDataDTO] = Json.reads[HistoricalDataDTO]
+    implicit val writesHistoricalJson: Writes[HistoricalDataDTO] = Json.writes[HistoricalDataDTO]
+
+  }
+
+
 }
 
