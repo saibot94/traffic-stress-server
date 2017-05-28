@@ -58,7 +58,7 @@ class StressCalculatorActor(out: ActorRef, id: Int) extends Actor {
         out ! StressPayload("stress", 0)
       } else {
         val stressFactorSpeed = distances.map(_._2).max
-        val closeDistances = distances.map(_._1).map(dist => dist.count(d => d <= 3.0)).sum / distances.length
+        val closeDistances = distances.map(_._1).map(dist => dist.count(d => d <= 13.0)).sum / distances.length
         val finalStressFactor = if(closeDistances < distances.length / 4) {
           stressFactorSpeed * 0.3
         } else if(closeDistances < distances.length / 3){
