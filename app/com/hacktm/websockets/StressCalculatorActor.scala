@@ -26,17 +26,34 @@ class StressCalculatorActor(out: ActorRef, id: Int) extends Actor {
 
   def receive = {
     case CalculateStressNotification(carJsons) =>
-      val futureCarPos = carJsons.drop(100)
-      val distances  = carJsons.zip(futureCarPos).par.map {
+      val futureCarPos = carJsons.take(700)
+      val currentCarPos = carJsons.drop(700)
+      val distances  = currentCarPos.zip(futureCarPos).map {
         case  (past, present) =>
           println("Calculating stress")
+
           val xDiff = past.trafficXPos.zip(present.trafficXPos).map { case (l1, l2) => (l1 - l2) * (l1 - l2)}
           val yDiff = past.trafficYPos.zip(present.trafficYPos).map { case (l1, l2) => (l1 - l2) * (l1 - l2)}
           val dist = xDiff.zip(yDiff).map { case (x,y) => Math.sqrt(x+y) }
+          val speedXDiff = past.trafficXSpeed.zip(present.trafficXSpeed).map { case (l1, l2) => Math.abs(l1-l2)}
+          val speedYDiff= past.trafficYSpeed.zip(present.trafficYSpeed).map { case (l1, l2) => Math.abs(l1-l2)}
+          val mySpeedDiff = Math.abs(past.speed - present.speed)
+
           println(s"Computed distances $dist")
-          dist
+          (dist, mySpeedDiff)
       }.toSeq
 
-      out ! StressPayload("stress", distances.map(dist => dist.count(d => d <= 2.0)).sum)
+      val stressFactorSpeed = distances.map(_._2).sum / distances.length
+      val stressFactor: Int = if(stressFactorSpeed > 25) {
+        10
+      } else if(stressFactorSpeed > 35) {
+        25
+      } else if(stressFactorSpeed > 50){
+        60
+      } else {
+        80
+      }
+//      distances._1.map(dist => dist.count(d => d <= 2.0))
+      out ! StressPayload("stress", stressFactor)
   }
 }

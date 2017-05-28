@@ -18,7 +18,7 @@ object MasterActor {
   val props = Props(new MasterActor)
 }
 class MasterActor extends Actor {
-
+  val splitSize = 200
   var registeredActors: mutable.HashMap[Int, ListBuffer[DataUpdateActor]] = mutable.HashMap()
 
   override def receive: Receive = {
@@ -29,8 +29,13 @@ class MasterActor extends Actor {
         case Some(lb) =>
           lb.foreach {
             actor =>
-              actor.self ! NotifyData(id, data.take(10))
+              var split = data.splitAt(splitSize)
+              while(split._2.nonEmpty) {
+                actor.self ! NotifyData(id, split._1)
+                split = split._2.splitAt(splitSize)
+              }
               actor.stressCalculatorActor ! CalculateStressNotification(data)
+
           }
       }
 
