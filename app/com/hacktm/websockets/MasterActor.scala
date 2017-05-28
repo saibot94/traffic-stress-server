@@ -12,14 +12,14 @@ import scala.collection.mutable.ListBuffer
   */
 
 case class NotifyData(id: Int, data: List[CarJsonDTO])
-case class TrackWebsocket(id: Int, actor: ActorRef)
+case class TrackWebsocket(id: Int, actor: DataUpdateActor)
 
 object MasterActor {
   val props = Props(new MasterActor)
 }
 class MasterActor extends Actor {
 
-  var registeredActors: mutable.HashMap[Int, ListBuffer[ActorRef]] = mutable.HashMap()
+  var registeredActors: mutable.HashMap[Int, ListBuffer[DataUpdateActor]] = mutable.HashMap()
 
   override def receive: Receive = {
     case NotifyData(id, data) =>
@@ -29,14 +29,15 @@ class MasterActor extends Actor {
         case Some(lb) =>
           lb.foreach {
             actor =>
-              actor ! NotifyData(id, data.take(10))
+              actor.self ! NotifyData(id, data.take(10))
+              actor.stressCalculatorActor ! CalculateStressNotification(data)
           }
       }
 
     case TrackWebsocket(id, actorRef) =>
       registeredActors.get(id) match {
         case None =>
-          val lb = new ListBuffer[ActorRef]()
+          val lb = new ListBuffer[DataUpdateActor]()
           lb += actorRef
           registeredActors += id -> lb
         case Some(lb) =>

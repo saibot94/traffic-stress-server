@@ -3,6 +3,8 @@ package com.hacktm.websockets
 import javax.inject.Inject
 
 import akka.actor.{Actor, ActorRef, ActorSystem, PoisonPill, Props}
+import akka.stream.Materializer
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 
 /**
@@ -14,13 +16,12 @@ object DataUpdateActor {
 
 }
 
-class DataUpdateActor (manager: ActorRef, out: ActorRef, id: Int) extends Actor {
-  manager ! TrackWebsocket(id, self)
+class DataUpdateActor(manager: ActorRef, out: ActorRef, id: Int) extends Actor {
+  manager ! TrackWebsocket(id, this)
+  val stressCalculatorActor: ActorRef = this.context.actorOf(StressCalculatorActor.props(self, id))
 
   def receive: PartialFunction[Any, Unit] = {
-    case msg: String =>
-      out ! ("I received the message " + msg)
-    case NotifyData(userId, data) =>
+    case NotifyData(_, data) =>
       out ! Json.toJson(data)
   }
 

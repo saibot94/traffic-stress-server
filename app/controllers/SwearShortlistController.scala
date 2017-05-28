@@ -24,6 +24,7 @@ class SwearShortlistController @Inject() extends Controller {
           swears(new Random().nextInt(swears.length)),
           swears(new Random().nextInt(swears.length))))
 
+
         Ok(Json.toJson(swearsResult))
       }
   }

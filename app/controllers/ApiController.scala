@@ -9,7 +9,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.hacktm.dto.CarJsonDTO
 import com.hacktm.dto.CarJsonDTO._
-import com.hacktm.websockets.{DataUpdateActor, MasterActor, NotifyData}
+import com.hacktm.websockets.{DataUpdateActor, MasterActor, NotifyData, StressCalculatorActor}
 import play.api.Configuration
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.{JsValue, Json}
