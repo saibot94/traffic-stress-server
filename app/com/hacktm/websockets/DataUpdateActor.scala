@@ -23,6 +23,9 @@ class DataUpdateActor(manager: ActorRef, out: ActorRef, id: Int) extends Actor {
   def receive: PartialFunction[Any, Unit] = {
     case NotifyData(_, data) =>
       out ! Json.toJson(data)
+
+    case x: StressPayload =>
+      out ! Json.toJson(x)
   }
 
   def close: Unit = {
