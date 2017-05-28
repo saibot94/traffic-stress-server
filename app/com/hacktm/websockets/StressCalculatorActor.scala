@@ -29,8 +29,16 @@ class StressCalculatorActor(out: ActorRef, id: Int) extends Actor {
 
   def receive = {
     case CalculateStressNotification(carJsons) =>
-      val futureCarPos = carJsons.take(150)
-      val currentCarPos = carJsons.drop(150)
+      var futureCarPos = Seq[CarJsonDTO]()
+      var currentCarPos = Seq[CarJsonDTO]()
+      if(carJsons.length == 300) {
+        futureCarPos = carJsons.take(150)
+        currentCarPos = carJsons.drop(150)
+      } else {
+        futureCarPos = carJsons.take(carJsons.length / 2)
+        currentCarPos = carJsons.drop(carJsons.length / 2)
+      }
+
       val distances = currentCarPos.zip(futureCarPos).map {
         case (past, present) =>
           println("Calculating stress")
